@@ -171,7 +171,7 @@ function DetailPane({ item, comments, commentsLoading }) {
 
   return (
     <div className="flex-1 overflow-y-auto">
-      <div className="max-w-2xl p-6 mx-auto">
+      <div className="max-w-4xl p-6 mx-auto">
         {/* Repo header */}
         <div className="mb-5">
           <div className="flex items-start justify-between gap-3 mb-3">
@@ -398,7 +398,7 @@ export default function Home() {
         {/* Body */}
         <div className="flex-1 flex overflow-hidden">
           {/* Left column */}
-          <aside className="w-[320px] flex-shrink-0 border-r border-gray-800/60 flex flex-col overflow-hidden bg-[#0d1117]">
+          <aside className="w-[420px] flex-shrink-0 border-r border-gray-800/60 flex flex-col overflow-hidden bg-[#0d1117]">
             {error && (
               <div className="px-4 py-2.5 bg-red-950/40 border-b border-red-900/30 text-red-400 text-xs">
                 {error}
