@@ -51,7 +51,7 @@ async function fetchGitHubRepo(owner, repo) {
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 's-maxage=7200, stale-while-revalidate=3600');
 
-  const since = Math.floor((Date.now() - 48 * 3600 * 1000) / 1000);
+  const since = Math.floor((Date.now() - 24 * 3600 * 1000) / 1000);
 
   let hnData;
   try {
