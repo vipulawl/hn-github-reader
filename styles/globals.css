@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #__next {
+  height: 100%;
+}
+
+/* HN comment HTML rendering */
+.hn-comment a {
+  color: #60a5fa;
+}
+.hn-comment a:hover {
+  text-decoration: underline;
+}
+.hn-comment p {
+  margin: 0.3rem 0;
+}
+.hn-comment pre {
+  background: #1f2937;
+  padding: 0.5rem;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-size: 0.75rem;
+  margin: 0.5rem 0;
+}
+.hn-comment code {
+  background: #1f2937;
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+  font-size: 0.75rem;
+}
+.hn-comment i {
+  font-style: italic;
+}
+
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
