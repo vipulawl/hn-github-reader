@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Head from 'next/head';
+import Link from 'next/link';
 
 const REFRESH_MS = 2 * 60 * 60 * 1000; // 2 hours
 
@@ -380,6 +381,12 @@ export default function Home() {
                 Updated {timeAgo(fetchedAt)}
               </span>
             )}
+            <Link
+              href="/search"
+              className="text-xs px-3 py-1.5 bg-gray-800/80 hover:bg-gray-700 text-gray-400 hover:text-white rounded-md border border-gray-700/50 transition-colors"
+            >
+              🔍 Search HN
+            </Link>
             <button
               onClick={fetchFeed}
               disabled={loading}
