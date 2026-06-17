@@ -56,7 +56,7 @@ export default async function handler(req, res) {
   let hnData;
   try {
     const hnRes = await fetchWithTimeout(
-      `https://hn.algolia.com/api/v1/search?query=github.com&tags=story&hitsPerPage=40&numericFilters=points>5,created_at_i>${since}`,
+      `https://hn.algolia.com/api/v1/search?query=github.com&tags=story&hitsPerPage=100&numericFilters=created_at_i%3E${since}`,
       {},
       10000
     );
@@ -69,6 +69,7 @@ export default async function handler(req, res) {
   const stories = [];
 
   for (const hit of hnData.hits || []) {
+    if ((hit.points || 0) < 5) continue;
     const parsed = extractGitHubRepo(hit.url);
     if (!parsed) continue;
     const key = `${parsed.owner}/${parsed.repo}`.toLowerCase();
