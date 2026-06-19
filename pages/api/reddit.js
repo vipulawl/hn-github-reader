@@ -1,4 +1,4 @@
-const SUBREDDITS = 'programming+MachineLearning+webdev+javascript+Python+golang+rust+devops';
+const SUBREDDITS = 'MachineLearning+LocalLLaMA+artificial+ClaudeAI+ChatGPT+singularity+LLMDevs+PromptEngineering';
 
 async function fetchWithTimeout(url, options = {}, ms = 8000) {
   const ctrl = new AbortController();

@@ -14,9 +14,9 @@ const LANG_COLORS = {
 };
 
 const SUBREDDIT_COLORS = {
-  programming: '#ff6314', MachineLearning: '#5f4bb6', webdev: '#0dd3bb',
-  javascript: '#c8a000', Python: '#3572A5', golang: '#00ADD8',
-  rust: '#dea584', devops: '#e07b39',
+  MachineLearning: '#5f4bb6', LocalLLaMA: '#00ADD8', artificial: '#e07b39',
+  ClaudeAI: '#c96442', ChatGPT: '#10a37f', singularity: '#8b5cf6',
+  LLMDevs: '#3178c6', PromptEngineering: '#c8a000',
 };
 
 function formatNum(n) {
