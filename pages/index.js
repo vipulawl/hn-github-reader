@@ -522,22 +522,60 @@ function RedditPostCard({ post, isSelected, onClick }) {
         >
           r/{post.subreddit}
         </span>
+        <span className="flex-shrink-0 text-xs font-semibold text-red-400 bg-red-400/10 px-2 py-0.5 rounded-full">
+          ▲ {formatNum(post.score)}
+        </span>
       </div>
       <p className="text-sm font-medium text-gray-200 leading-snug group-hover:text-white transition-colors mb-2 line-clamp-2">
         {post.title}
       </p>
       <div className="flex items-center gap-3 flex-wrap">
         {!post.isSelf && (
-          <span className="text-xs text-gray-600 truncate max-w-[200px]">{post.domain}</span>
+          <span className="text-xs text-gray-600 truncate max-w-[160px]">{post.domain}</span>
         )}
-        {post.isSelf && <span className="text-xs text-gray-700">self post</span>}
+        <span className="text-xs text-gray-600">💬 {formatNum(post.numComments)}</span>
         <span className="text-xs text-gray-700 ml-auto">{timeAgo(post.createdAt)}</span>
       </div>
     </button>
   );
 }
 
-function RedditDetail({ post }) {
+function RedditComment({ comment }) {
+  const [expanded, setExpanded] = useState(false);
+  if (!comment?.body) return null;
+  const isLong = comment.body.length > 600;
+  return (
+    <div className="border-l-2 border-gray-800 pl-3 py-1">
+      <div className="flex items-center gap-2 mb-1.5">
+        <span className="text-xs font-semibold text-blue-400">u/{comment.author}</span>
+        <span className="text-xs text-orange-500/70">▲ {formatNum(comment.score)}</span>
+        <span className="text-xs text-gray-700">{timeAgo(comment.createdAt)}</span>
+      </div>
+      {comment.bodyHtml ? (
+        <>
+          <div
+            className="text-xs text-gray-400 leading-relaxed hn-comment"
+            dangerouslySetInnerHTML={{
+              __html: isLong && !expanded ? comment.bodyHtml.slice(0, 800) + '…' : comment.bodyHtml,
+            }}
+          />
+          {isLong && (
+            <button
+              onClick={() => setExpanded(e => !e)}
+              className="text-xs text-gray-600 hover:text-gray-400 mt-1 transition-colors"
+            >
+              {expanded ? 'Show less' : 'Show more'}
+            </button>
+          )}
+        </>
+      ) : (
+        <p className="text-xs text-gray-400 leading-relaxed">{comment.body}</p>
+      )}
+    </div>
+  );
+}
+
+function RedditDetail({ post, comments, commentsLoading }) {
   if (!post) {
     return (
       <div className="flex-1 flex items-center justify-center text-gray-700">
@@ -562,6 +600,11 @@ function RedditDetail({ post }) {
                 >
                   r/{post.subreddit}
                 </span>
+                {post.flair && (
+                  <span className="text-xs px-2 py-0.5 bg-gray-800/80 text-gray-400 rounded border border-gray-700/50">
+                    {post.flair}
+                  </span>
+                )}
               </div>
               <h1 className="text-lg font-bold text-white leading-snug">
                 <a href={post.permalink} target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors">
@@ -579,12 +622,25 @@ function RedditDetail({ post }) {
               )}
               <a href={post.permalink} target="_blank" rel="noopener noreferrer"
                 className="text-xs px-3 py-1.5 bg-red-600/20 hover:bg-red-600/30 text-red-400 rounded-md border border-red-600/30 transition-colors">
-                Reddit ↗
+                Reddit ▲{formatNum(post.score)}
               </a>
             </div>
           </div>
         </div>
 
+        <div className="grid grid-cols-2 gap-2 mb-5">
+          <StatBox icon="▲" label="Score" value={formatNum(post.score)} />
+          <StatBox icon="💬" label="Comments" value={formatNum(post.numComments)} />
+        </div>
+
+        {post.isSelf && post.selfTextHtml && (
+          <div className="mb-5 pb-5 border-b border-gray-800/60">
+            <div
+              className="text-sm text-gray-400 leading-relaxed hn-comment"
+              dangerouslySetInnerHTML={{ __html: post.selfTextHtml }}
+            />
+          </div>
+        )}
         {!post.isSelf && (
           <div className="mb-5 pb-5 border-b border-gray-800/60">
             <a href={post.url} target="_blank" rel="noopener noreferrer"
@@ -594,14 +650,30 @@ function RedditDetail({ post }) {
           </div>
         )}
 
-        <a
-          href={post.permalink}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 w-full py-4 bg-red-600/10 hover:bg-red-600/20 border border-red-600/20 rounded-lg text-red-400 hover:text-red-300 text-sm font-medium transition-colors"
-        >
-          View full discussion on Reddit →
-        </a>
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+              <span className="text-red-500 normal-case font-bold text-sm">Reddit</span>
+              Top Comments
+              <span className="text-gray-700 font-normal normal-case">({formatNum(post.numComments)} total)</span>
+            </h2>
+            <a href={post.permalink} target="_blank" rel="noopener noreferrer"
+              className="text-xs text-gray-600 hover:text-red-400 transition-colors">
+              See all on Reddit →
+            </a>
+          </div>
+          {commentsLoading ? (
+            <div className="space-y-4">
+              <SkeletonComment /><SkeletonComment /><SkeletonComment />
+            </div>
+          ) : comments.length === 0 ? (
+            <p className="text-xs text-gray-700 py-4 text-center">No comments yet.</p>
+          ) : (
+            <div className="space-y-5">
+              {comments.map(c => <RedditComment key={c.id} comment={c} />)}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -612,7 +684,10 @@ function RedditTab({ refreshKey, onLoading, onFetched }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selected, setSelected] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [commentsLoading, setCommentsLoading] = useState(false);
   const hasAutoSelected = useRef(false);
+  const commentsCtrl = useRef(null);
 
   const fetchFeed = useCallback(async () => {
     setLoading(true);
@@ -622,6 +697,7 @@ function RedditTab({ refreshKey, onLoading, onFetched }) {
       const res = await fetch('/api/reddit');
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
+      if (data.error) throw new Error(data.error);
       setPosts(data.posts || []);
       onFetched(data.fetchedAt);
       if (data.posts?.length > 0 && !hasAutoSelected.current) {
@@ -629,7 +705,7 @@ function RedditTab({ refreshKey, onLoading, onFetched }) {
         hasAutoSelected.current = true;
       }
     } catch (e) {
-      setError('Failed to load Reddit feed. ' + e.message);
+      setError(e.message);
     } finally {
       setLoading(false);
       onLoading(false);
@@ -641,6 +717,21 @@ function RedditTab({ refreshKey, onLoading, onFetched }) {
     const timer = setInterval(fetchFeed, REDDIT_REFRESH_MS);
     return () => clearInterval(timer);
   }, [refreshKey]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!selected) return;
+    if (commentsCtrl.current) commentsCtrl.current.abort();
+    const ctrl = new AbortController();
+    commentsCtrl.current = ctrl;
+    setComments([]);
+    setCommentsLoading(true);
+    fetch(`/api/reddit-comments?sub=${selected.subreddit}&id=${selected.id}`, { signal: ctrl.signal })
+      .then(r => r.json())
+      .then(d => setComments(d.comments || []))
+      .catch(e => { if (e.name !== 'AbortError') console.error(e); })
+      .finally(() => setCommentsLoading(false));
+    return () => ctrl.abort();
+  }, [selected?.id]);
 
   return (
     <div className="flex-1 flex overflow-hidden">
@@ -661,7 +752,7 @@ function RedditTab({ refreshKey, onLoading, onFetched }) {
         </div>
       </aside>
       <main className="flex-1 overflow-hidden flex flex-col bg-[#0d1117]">
-        <RedditDetail post={selected} />
+        <RedditDetail post={selected} comments={comments} commentsLoading={commentsLoading} />
       </main>
     </div>
   );
